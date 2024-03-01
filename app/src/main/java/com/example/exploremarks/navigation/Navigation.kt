@@ -28,7 +28,6 @@ fun Navigation(
         }
         composable(route = Screen.MapScreen.route){
             MapScreen(
-                viewModel = viewModel(),
                 context = context
             )
         }

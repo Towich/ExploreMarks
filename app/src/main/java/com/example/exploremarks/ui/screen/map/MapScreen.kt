@@ -13,6 +13,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.exploremarks.R
 import com.example.exploremarks.data.MarkUIModel
 import com.example.exploremarks.ui.screen.map.components.MarkInfoButtonSheet
@@ -30,9 +31,8 @@ import com.yandex.runtime.image.ImageProvider
 @Composable
 fun MapScreen(
     context: Context,
-    viewModel: MapViewModel
+    viewModel: MapViewModel = hiltViewModel()
 ) {
-    var clicked by remember { mutableIntStateOf(0) }
     val listOfMarks by viewModel.listOfMarks.collectAsState(initial = null)
     var mapMarks by remember { mutableStateOf<MapObjectCollection?>(null) }
     var marksTapListeners = remember { mutableListOf<MapObjectTapListener>() }

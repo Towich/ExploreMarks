@@ -16,9 +16,11 @@ import com.example.exploremarks.navigation.Navigation
 import com.example.exploremarks.ui.screen.map.MapScreen
 import com.example.exploremarks.ui.theme.ExploreMarksTheme
 import com.yandex.mapkit.MapKitFactory
+import dagger.hilt.android.AndroidEntryPoint
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.android.Android
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
     private fun setApiKey(savedInstanceState: Bundle?) {
