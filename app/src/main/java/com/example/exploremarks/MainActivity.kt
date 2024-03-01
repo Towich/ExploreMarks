@@ -10,6 +10,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.exploremarks.ui.map.MapScreen
 import com.example.exploremarks.ui.theme.ExploreMarksTheme
 import com.yandex.mapkit.MapKitFactory
@@ -49,7 +50,10 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             ExploreMarksTheme {
-                MapScreen(applicationContext)
+                MapScreen(
+                    viewModel = viewModel(),
+                    context = applicationContext
+                )
             }
         }
     }
