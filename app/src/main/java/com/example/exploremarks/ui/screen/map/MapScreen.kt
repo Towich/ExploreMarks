@@ -67,7 +67,7 @@ fun MapScreen(
                     val listener = MapObjectTapListener { _, _ ->
                         mapView.mapWindow.map.move(
                             CameraPosition(
-                                Point(point.latitude, point.longitude), 15f, 0f, 0f
+                                Point(point.latitude, point.longitude), mapView.mapWindow.map.cameraPosition.zoom, 0f, 0f
                             ),
                             Animation(Animation.Type.SMOOTH, 1f),
                             {}

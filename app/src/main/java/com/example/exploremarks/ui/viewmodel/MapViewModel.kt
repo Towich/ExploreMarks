@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import com.example.exploremarks.data.DebugObject
 import com.example.exploremarks.data.MarkUIModel
 import com.example.exploremarks.data.repository.IMainRepository
+import com.example.exploremarks.domain.GetMarksUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
@@ -12,10 +13,12 @@ import javax.inject.Inject
 
 @HiltViewModel
 class MapViewModel @Inject constructor(
-    private val repository: IMainRepository
+    private val getMarks: GetMarksUseCase
 ): ViewModel() {
     val listOfMarks: Flow<List<MarkUIModel>?> = flow {
-        delay(2000L)
-        emit(DebugObject.listOfMarks)
+        val marks = getMarks()
+        emit(marks)
+
+        // emit(DebugObject.listOfMarks)
     }
 }
