@@ -1,4 +1,4 @@
-package com.example.exploremarks.ui.map.components
+package com.example.exploremarks.ui.screen.map.components
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -61,7 +61,7 @@ fun MarkInfoButtonSheet(
 
         Row(
             modifier = Modifier
-                .padding(top = 10.dp)
+                .padding(top = 20.dp)
                 .fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceEvenly
         ) {
@@ -109,7 +109,7 @@ fun MarkInfoButtonSheet(
                 fontWeight = FontWeight.Bold
             )
             Text(
-                text = mark.user.username,
+                text = mark.user?.username ?: "Unknown",
                 color = MaterialTheme.colorScheme.secondary,
                 fontWeight = FontWeight.Bold
             )
@@ -135,7 +135,7 @@ fun MarkInfoButtonSheet(
             horizontalArrangement = Arrangement.Center
         ) {
             Text(
-                text = "bla-bla-bla-bla-bla-bla-bla-bla-bla-bla-bla-bla-bla-bla-bla-bla-bla-bla-bla-bla-bla-bla-",
+                text = mark.description,
                 textAlign = TextAlign.Center,
                 color = MaterialTheme.colorScheme.secondary
             )

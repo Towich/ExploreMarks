@@ -1,4 +1,4 @@
-package com.example.exploremarks.ui.map
+package com.example.exploremarks.ui.screen.map
 
 import android.content.Context
 import android.util.Log
@@ -15,7 +15,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.viewinterop.AndroidView
 import com.example.exploremarks.R
 import com.example.exploremarks.data.MarkUIModel
-import com.example.exploremarks.ui.map.components.MarkInfoButtonSheet
+import com.example.exploremarks.ui.screen.map.components.MarkInfoButtonSheet
 import com.example.exploremarks.ui.viewmodel.MapViewModel
 import com.yandex.mapkit.Animation
 import com.yandex.mapkit.geometry.Point

@@ -11,7 +11,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.exploremarks.ui.map.MapScreen
+import androidx.navigation.compose.rememberNavController
+import com.example.exploremarks.navigation.Navigation
+import com.example.exploremarks.ui.screen.map.MapScreen
 import com.example.exploremarks.ui.theme.ExploreMarksTheme
 import com.yandex.mapkit.MapKitFactory
 import io.ktor.client.HttpClient
@@ -49,11 +51,10 @@ class MainActivity : ComponentActivity() {
         MapKitFactory.initialize(this)
 
         setContent {
+            val navController = rememberNavController()
+
             ExploreMarksTheme {
-                MapScreen(
-                    viewModel = viewModel(),
-                    context = applicationContext
-                )
+                Navigation(context = applicationContext, navController = navController)
             }
         }
     }

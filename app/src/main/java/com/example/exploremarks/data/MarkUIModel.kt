@@ -7,8 +7,8 @@ data class MarkUIModel(
     val latitude: Double,
     val longitude: Double,
     val description: String,
-    val image: String,
+    val image: String?,
     val likes: Int,
     val isLiked: Boolean,
-    val user: UserUIModel
+    val user: UserUIModel?
 )

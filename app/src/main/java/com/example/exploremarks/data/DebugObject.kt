@@ -28,11 +28,21 @@ object DebugObject {
             id = UUID.randomUUID(),
             latitude = 55.751225,
             longitude = 37.629540,
-            description = "first mark",
+            description = "second mark",
             image = "3124fged",
             likes = 1,
             isLiked = false,
             user = user2
+        ),
+        MarkUIModel(
+            id = UUID.randomUUID(),
+            latitude = 55.758467,
+            longitude = 37.615762,
+            description = "Что-то во дворе гос думы",
+            image = null,
+            likes = 0,
+            isLiked = false,
+            user = null
         )
     )
 }
