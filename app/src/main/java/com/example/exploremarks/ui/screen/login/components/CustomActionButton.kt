@@ -1,11 +1,13 @@
 package com.example.exploremarks.ui.screen.login.components
 
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -19,6 +21,7 @@ import com.example.exploremarks.navigation.Screen
 @Composable
 fun CustomActionButton(
     title: String,
+    isLoading: Boolean = false,
     modifier: Modifier = Modifier,
     onClick: () -> Unit
 ){
@@ -32,11 +35,20 @@ fun CustomActionButton(
             containerColor = MaterialTheme.colorScheme.secondary
         )
     ) {
-        Text(
-            text = title,
-            fontSize = 20.sp,
-            color = Color.White,
-            fontWeight = FontWeight.Bold
-        )
+        if(isLoading){
+            CircularProgressIndicator(
+                modifier = Modifier.fillMaxHeight(),
+                color = MaterialTheme.colorScheme.primary,
+                trackColor = MaterialTheme.colorScheme.secondary,
+            )
+        }
+        else{
+            Text(
+                text = title,
+                fontSize = 20.sp,
+                color = Color.White,
+                fontWeight = FontWeight.Bold
+            )
+        }
     }
 }

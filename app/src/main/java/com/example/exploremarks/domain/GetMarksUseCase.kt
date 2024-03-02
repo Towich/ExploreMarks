@@ -1,10 +1,10 @@
 package com.example.exploremarks.domain
 
 import com.example.exploremarks.data.MarkUIModel
-import com.example.exploremarks.data.repository.IMainRepository
+import com.example.exploremarks.data.repository.MainRepository
 
 class GetMarksUseCase(
-    private val repository: IMainRepository
+    private val repository: MainRepository
 ) {
     suspend operator fun invoke(): List<MarkUIModel>? {
         return repository.getMarks()

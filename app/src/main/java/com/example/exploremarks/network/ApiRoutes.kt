@@ -1,10 +1,10 @@
 package com.example.exploremarks.network
 
 object ApiRoutes {
-    const val BASE_URL = "http://maps.rtuitlab.dev/api"
-    const val TAGS = "/tags"
-    const val LIKES = "/likes"
+    const val BASE_URL = "https://maps.rtuitlab.dev"
+    const val TAGS = "/api/tags/"
+    const val LIKES = "/api/likes"
 
-    const val LOGIN = "/auth/jwt/login"
-    const val REGISTER = "/auth/register"
+    const val LOGIN = "/api/auth/jwt/login"
+    const val REGISTER = "/api/auth/register"
 }

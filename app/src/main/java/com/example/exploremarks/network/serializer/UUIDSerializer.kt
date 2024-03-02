@@ -1,4 +1,4 @@
-package com.example.exploremarks.network
+package com.example.exploremarks.network.serializer
 
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.descriptors.PrimitiveKind
