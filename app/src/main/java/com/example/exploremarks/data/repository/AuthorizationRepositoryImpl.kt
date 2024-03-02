@@ -12,8 +12,8 @@ class AuthorizationRepositoryImpl(
     private val appContext: Application,
     private val apiService: ApiService
 ): AuthorizationRepository  {
-    override suspend fun register(userData: RegisterRequestSerializable): RegisterResponseSerializable? {
-        TODO("Not yet implemented")
+    override suspend fun register(userData: RegisterRequestSerializable): ApiResult<RegisterResponseSerializable> {
+        return apiService.register(userData)
     }
 
     override suspend fun login(userData: LoginRequestSerializable): ApiResult<LoginResponseSerializable> {

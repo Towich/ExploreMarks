@@ -1,4 +1,4 @@
-package com.example.exploremarks.ui.screen.login.components
+package com.example.exploremarks.ui.screen.components
 
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.fillMaxWidth

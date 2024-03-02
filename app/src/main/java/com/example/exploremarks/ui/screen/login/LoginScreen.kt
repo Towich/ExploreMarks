@@ -1,8 +1,5 @@
 package com.example.exploremarks.ui.screen.login
 
-import android.app.Activity
-import android.content.Context
-import android.view.inputmethod.InputMethodManager
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -30,24 +27,22 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.core.content.ContextCompat.getSystemService
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
 import com.example.exploremarks.R
 import com.example.exploremarks.navigation.Screen
-import com.example.exploremarks.ui.screen.login.components.CustomActionButton
-import com.example.exploremarks.ui.screen.login.components.CustomClickableText
-import com.example.exploremarks.ui.screen.login.components.CustomCommonTextField
-import com.example.exploremarks.ui.screen.login.components.CustomPasswordTextField
-import com.example.exploremarks.ui.theme.ExploreMarksTheme
-import com.example.exploremarks.ui.viewmodel.LoginViewModel
+import com.example.exploremarks.ui.screen.components.CustomActionButton
+import com.example.exploremarks.ui.screen.components.CustomClickableText
+import com.example.exploremarks.ui.screen.components.CustomCommonTextField
+import com.example.exploremarks.ui.screen.components.CustomPasswordTextField
+import com.example.exploremarks.ui.screen.util.AuthorizationScreenUiState
+import kotlinx.coroutines.launch
 
 @Composable
 fun LoginScreen(
     navController: NavController,
+    showSuccessfulRegistered: Boolean,
     viewModel: LoginViewModel = hiltViewModel()
 ) {
     var inputUsername by remember { mutableStateOf("") }
@@ -59,16 +54,22 @@ fun LoginScreen(
 
     val keyboardController = LocalSoftwareKeyboardController.current
 
+    if(showSuccessfulRegistered){
+        LaunchedEffect(key1 = "key2"){
+            snackbarHostState.showSnackbar("Successful registered!")
+        }
+    }
+
     when(uiState){
-        is LoginScreenUiState.Error -> {
+        is AuthorizationScreenUiState.Error -> {
             inputUsername = ""
             inputPassword = ""
             LaunchedEffect(key1 = "key1") {
-                snackbarHostState.showSnackbar((uiState as LoginScreenUiState.Error).message)
-                viewModel.changeUiState(LoginScreenUiState.Initial)
+                snackbarHostState.showSnackbar((uiState as AuthorizationScreenUiState.Error).message)
+                viewModel.changeUiState(AuthorizationScreenUiState.Initial)
             }
         }
-        is LoginScreenUiState.Success -> {
+        is AuthorizationScreenUiState.Success -> {
             navController.navigate(Screen.MapScreen.route) {
                 popUpTo(0)
             }
@@ -126,12 +127,19 @@ fun LoginScreen(
 
                 CustomActionButton(
                     title = "SIGN IN",
-                    isLoading = uiState == LoginScreenUiState.Loading,
+                    isLoading = uiState == AuthorizationScreenUiState.Loading,
                     modifier = Modifier
                         .padding(top = 40.dp)
                 ) {
                     keyboardController?.hide()
-                    viewModel.performLogin(username = inputUsername, password = inputPassword)
+                    if(inputUsername.isEmpty() || inputPassword.isEmpty()){
+                        scope.launch {
+                            snackbarHostState.showSnackbar("Username and password can't be empty!")
+                        }
+                    }
+                    else{
+                        viewModel.performLogin(username = inputUsername, password = inputPassword)
+                    }
                 }
 
                 CustomActionButton(
@@ -140,8 +148,6 @@ fun LoginScreen(
                         .padding(top = 30.dp)
                 ) {
                     keyboardController?.hide()
-//                    inputUsername = ""
-//                    inputPassword = ""
                     navController.navigate(Screen.MapScreen.route) {
                         popUpTo(0)
                     }
@@ -157,7 +163,9 @@ fun LoginScreen(
                         firstPartText = "Don't have an account? ",
                         secondPartText = "Sign Up"
                     ) {
-                        navController.navigate(Screen.RegisterScreen.route)
+                        navController.navigate(Screen.RegisterScreen.route) {
+                            popUpTo(0)
+                        }
                     }
                 }
             }

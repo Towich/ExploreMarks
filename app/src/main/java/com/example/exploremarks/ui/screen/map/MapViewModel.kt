@@ -1,7 +1,7 @@
-package com.example.exploremarks.ui.viewmodel
+package com.example.exploremarks.ui.screen.map
 
 import androidx.lifecycle.ViewModel
-import com.example.exploremarks.data.MarkUIModel
+import com.example.exploremarks.data.model.MarkUIModel
 import com.example.exploremarks.domain.GetMarksUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow

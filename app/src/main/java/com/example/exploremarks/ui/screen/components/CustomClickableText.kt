@@ -1,4 +1,4 @@
-package com.example.exploremarks.ui.screen.login.components
+package com.example.exploremarks.ui.screen.components
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.padding

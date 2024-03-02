@@ -1,5 +1,7 @@
 package com.example.exploremarks.data
 
+import com.example.exploremarks.data.model.MarkUIModel
+import com.example.exploremarks.data.model.UserUIModel
 import java.util.UUID
 
 object DebugObject {

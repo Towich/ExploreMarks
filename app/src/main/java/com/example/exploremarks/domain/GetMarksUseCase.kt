@@ -1,6 +1,6 @@
 package com.example.exploremarks.domain
 
-import com.example.exploremarks.data.MarkUIModel
+import com.example.exploremarks.data.model.MarkUIModel
 import com.example.exploremarks.data.repository.MainRepository
 
 class GetMarksUseCase(

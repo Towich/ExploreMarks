@@ -4,6 +4,7 @@ import com.example.exploremarks.data.repository.AuthorizationRepository
 import com.example.exploremarks.data.repository.MainRepository
 import com.example.exploremarks.domain.GetMarksUseCase
 import com.example.exploremarks.domain.LoginUseCase
+import com.example.exploremarks.domain.RegisterUseCase
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -23,6 +24,12 @@ object DomainModule {
     @Singleton
     fun provideLoginUseCase(repository: AuthorizationRepository): LoginUseCase {
         return LoginUseCase(repository)
+    }
+
+    @Provides
+    @Singleton
+    fun provideRegisterUseCase(repository: AuthorizationRepository): RegisterUseCase {
+        return RegisterUseCase(repository)
     }
 
 

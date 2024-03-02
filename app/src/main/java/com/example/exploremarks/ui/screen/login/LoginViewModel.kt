@@ -1,21 +1,14 @@
-package com.example.exploremarks.ui.viewmodel
+package com.example.exploremarks.ui.screen.login
 
-import androidx.compose.runtime.State
-import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.exploremarks.domain.LoginUseCase
 import com.example.exploremarks.network.util.ApiResult
-import com.example.exploremarks.ui.screen.login.LoginScreenUiState
+import com.example.exploremarks.ui.screen.util.AuthorizationScreenUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
-import io.ktor.client.plugins.ClientRequestException
-import io.ktor.client.plugins.ResponseException
-import io.ktor.client.plugins.ServerResponseException
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
-import kotlinx.serialization.SerializationException
-import java.io.IOException
 import javax.inject.Inject
 
 @HiltViewModel
@@ -23,20 +16,20 @@ class LoginViewModel @Inject constructor(
     private val login: LoginUseCase
 ) : ViewModel() {
 
-    private val _uiState = MutableStateFlow<LoginScreenUiState>(LoginScreenUiState.Initial)
-    val uiState: StateFlow<LoginScreenUiState> = _uiState
+    private val _uiState = MutableStateFlow<AuthorizationScreenUiState>(AuthorizationScreenUiState.Initial)
+    val uiState: StateFlow<AuthorizationScreenUiState> = _uiState
 
     fun performLogin(username: String, password: String) {
         viewModelScope.launch {
-            _uiState.value = LoginScreenUiState.Loading
+            _uiState.value = AuthorizationScreenUiState.Loading
 
             when (val loginResult = login(username = username, password = password)) {
                 is ApiResult.Success -> {
-                    _uiState.value = LoginScreenUiState.Success
+                    _uiState.value = AuthorizationScreenUiState.Success
                 }
 
                 is ApiResult.Error -> {
-                    _uiState.value = LoginScreenUiState.Error(loginResult.error)
+                    _uiState.value = AuthorizationScreenUiState.Error(loginResult.error)
                 }
 
                 else -> {
@@ -46,7 +39,7 @@ class LoginViewModel @Inject constructor(
         }
     }
 
-    fun changeUiState(newState: LoginScreenUiState) {
+    fun changeUiState(newState: AuthorizationScreenUiState) {
         _uiState.value = newState
     }
 }

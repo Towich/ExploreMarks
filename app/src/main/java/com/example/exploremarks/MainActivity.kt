@@ -22,13 +22,7 @@ import io.ktor.client.engine.android.Android
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
-
-    private fun setApiKey(savedInstanceState: Bundle?) {
-        val haveApiKey = savedInstanceState?.getBoolean("haveApiKey") ?: false
-        if (!haveApiKey) {
-            MapKitFactory.setApiKey(BuildConfig.MAPKIT_API_KEY)
-        }
-    }
+    private val isMapInitializedKey = "isMapInitializedKey"
 
     override fun onStart() {
         super.onStart()
@@ -42,7 +36,7 @@ class MainActivity : ComponentActivity() {
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
-        outState.putBoolean("haveMapApiKey", true)
+        outState.putBoolean(isMapInitializedKey, true)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -58,6 +52,13 @@ class MainActivity : ComponentActivity() {
             ExploreMarksTheme {
                 Navigation(context = applicationContext, navController = navController)
             }
+        }
+    }
+
+    private fun setApiKey(savedInstanceState: Bundle?) {
+        val haveApiKey = savedInstanceState?.getBoolean(isMapInitializedKey) ?: false
+        if (!haveApiKey) {
+            MapKitFactory.setApiKey(BuildConfig.MAPKIT_API_KEY)
         }
     }
 }

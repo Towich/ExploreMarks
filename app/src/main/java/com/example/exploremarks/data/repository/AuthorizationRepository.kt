@@ -7,6 +7,6 @@ import com.example.exploremarks.network.serializable.RegisterResponseSerializabl
 import com.example.exploremarks.network.util.ApiResult
 
 interface AuthorizationRepository {
-    suspend fun register(userData: RegisterRequestSerializable): RegisterResponseSerializable?
+    suspend fun register(userData: RegisterRequestSerializable): ApiResult<RegisterResponseSerializable>
     suspend fun login(userData: LoginRequestSerializable): ApiResult<LoginResponseSerializable>
 }

@@ -2,59 +2,82 @@ package com.example.exploremarks.ui.screen.register
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.ClickableText
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.buildAnnotatedString
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.exploremarks.R
 import com.example.exploremarks.navigation.Screen
-import com.example.exploremarks.ui.screen.login.components.CustomActionButton
-import com.example.exploremarks.ui.screen.login.components.CustomClickableText
-import com.example.exploremarks.ui.screen.login.components.CustomCommonTextField
-import com.example.exploremarks.ui.screen.login.components.CustomPasswordTextField
+import com.example.exploremarks.ui.screen.components.CustomActionButton
+import com.example.exploremarks.ui.screen.components.CustomClickableText
+import com.example.exploremarks.ui.screen.components.CustomCommonTextField
+import com.example.exploremarks.ui.screen.components.CustomPasswordTextField
+import com.example.exploremarks.ui.screen.util.AuthorizationScreenUiState
 import com.example.exploremarks.ui.theme.ExploreMarksTheme
+import kotlinx.coroutines.launch
 
 @Composable
 fun RegisterScreen(
-    navController: NavController
+    navController: NavController,
+    viewModel: RegisterViewModel = hiltViewModel()
 ) {
-    var inputEmail by remember { mutableStateOf("") }
+    var inputUsername by remember { mutableStateOf("") }
     var inputPassword by remember { mutableStateOf("") }
 
-    Scaffold(
+    val uiState by viewModel.uiState.collectAsState()
 
+    val scope = rememberCoroutineScope()
+    val snackbarHostState = remember { SnackbarHostState() }
+
+    val keyboardController = LocalSoftwareKeyboardController.current
+
+    when(uiState){
+        is AuthorizationScreenUiState.Error -> {
+            inputUsername = ""
+            inputPassword = ""
+            LaunchedEffect(key1 = "key1") {
+                snackbarHostState.showSnackbar((uiState as AuthorizationScreenUiState.Error).message)
+                viewModel.changeUiState(AuthorizationScreenUiState.Initial)
+            }
+        }
+        is AuthorizationScreenUiState.Success -> {
+            navController.navigate(Screen.LoginScreen.route + "?showSuccessfulRegistered=true") {
+                popUpTo(0)
+            }
+        }
+        else -> {}
+    }
+
+    Scaffold(
+        snackbarHost = {
+            SnackbarHost(hostState = snackbarHostState)
+        }
     ) { scaffoldPadding ->
         Box(
             modifier = Modifier
@@ -81,10 +104,10 @@ fun RegisterScreen(
                 verticalArrangement = Arrangement.Top
             ) {
                 CustomCommonTextField(
-                    value = inputEmail,
-                    placeholderText = "Email",
+                    value = inputUsername,
+                    placeholderText = "Username",
                     onValueChange = { newText ->
-                        inputEmail = newText
+                        inputUsername = newText
                     }
                 )
                 CustomPasswordTextField(
@@ -99,12 +122,20 @@ fun RegisterScreen(
 
                 CustomActionButton(
                     title = "SIGN UP",
+                    isLoading = uiState == AuthorizationScreenUiState.Loading,
                     modifier = Modifier
                         .padding(top = 40.dp)
                 ) {
-                    navController.navigate(Screen.MapScreen.route) {
-                        popUpTo(0)
+                    keyboardController?.hide()
+                    if(inputUsername.isEmpty() || inputPassword.isEmpty()){
+                        scope.launch {
+                            snackbarHostState.showSnackbar("Username and password can't be empty!")
+                        }
                     }
+                    else{
+                        viewModel.performRegister(username = inputUsername, password = inputPassword)
+                    }
+
                 }
 
                 CustomActionButton(
@@ -112,6 +143,7 @@ fun RegisterScreen(
                     modifier = Modifier
                         .padding(top = 30.dp)
                 ) {
+                    keyboardController?.hide()
                     navController.navigate(Screen.MapScreen.route) {
                         popUpTo(0)
                     }
@@ -127,7 +159,10 @@ fun RegisterScreen(
                         firstPartText = "Have an account? ",
                         secondPartText = "Sign In"
                     ) {
-                        navController.navigate(Screen.LoginScreen.route)
+                        navController.navigate(Screen.LoginScreen.route) {
+                            popUpTo(0)
+                        }
+
                     }
                 }
             }

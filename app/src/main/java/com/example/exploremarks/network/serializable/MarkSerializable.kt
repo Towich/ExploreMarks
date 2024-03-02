@@ -1,6 +1,6 @@
 package com.example.exploremarks.network.serializable
 
-import com.example.exploremarks.data.MarkUIModel
+import com.example.exploremarks.data.model.MarkUIModel
 import com.example.exploremarks.network.serializer.UUIDSerializer
 import kotlinx.serialization.Serializable
 import java.util.UUID

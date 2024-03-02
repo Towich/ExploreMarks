@@ -1,4 +1,4 @@
-package com.example.exploremarks.data
+package com.example.exploremarks.data.model
 
 import kotlinx.serialization.Serializable
 import java.util.UUID

@@ -1,23 +1,19 @@
 package com.example.exploremarks.ui.screen.map
 
 import android.content.Context
-import android.util.Log
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.exploremarks.R
-import com.example.exploremarks.data.MarkUIModel
+import com.example.exploremarks.data.model.MarkUIModel
 import com.example.exploremarks.ui.screen.map.components.MarkInfoButtonSheet
-import com.example.exploremarks.ui.viewmodel.MapViewModel
 import com.yandex.mapkit.Animation
 import com.yandex.mapkit.geometry.Point
 import com.yandex.mapkit.map.CameraPosition

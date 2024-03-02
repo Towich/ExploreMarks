@@ -2,7 +2,7 @@ package com.example.exploremarks.data.repository
 
 import android.app.Application
 import com.example.exploremarks.data.DebugObject
-import com.example.exploremarks.data.MarkUIModel
+import com.example.exploremarks.data.model.MarkUIModel
 import com.example.exploremarks.network.ApiService
 
 class MainRepositoryImpl(

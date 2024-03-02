@@ -1,4 +1,4 @@
-package com.example.exploremarks.data
+package com.example.exploremarks.data.model
 
 import java.util.UUID
 
