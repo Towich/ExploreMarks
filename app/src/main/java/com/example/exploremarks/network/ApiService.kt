@@ -16,4 +16,6 @@ interface ApiService {
     suspend fun getMarks(accessToken: String?, tokenType: String?): ApiResult<List<MarkUIModel>>
     suspend fun likeMark(accessToken: String?, tokenType: String?, markId: UUID): ApiResult<MarkUIModel>
     suspend fun dislikeMark(accessToken: String?, tokenType: String?, markId: UUID): ApiResult<Boolean>
+    suspend fun createMark(newMark: MarkUIModel, accessToken: String?, tokenType: String?): ApiResult<MarkUIModel>
+    suspend fun deleteMark(markId: UUID, accessToken: String?, tokenType: String?): ApiResult<Boolean>
 }

@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -55,7 +56,8 @@ fun MarkInfoButtonSheet(
             onDismissRequest()
         },
         sheetState = sheetState,
-        containerColor = MaterialTheme.colorScheme.background
+        containerColor = MaterialTheme.colorScheme.background,
+        scrimColor = Color.Transparent
     ) {
         // Sheet content
 
@@ -89,7 +91,7 @@ fun MarkInfoButtonSheet(
                     color = MaterialTheme.colorScheme.primary,
                     fontWeight = FontWeight.Bold,
 
-                )
+                    )
             }
             Column(
                 modifier = Modifier,
@@ -181,23 +183,63 @@ fun MarkInfoButtonSheet(
             modifier = Modifier
                 .padding(top = 50.dp, start = 20.dp, end = 20.dp, bottom = 20.dp)
                 .fillMaxWidth(),
-            horizontalArrangement = if (userId == mark.user?.id) Arrangement.SpaceBetween else Arrangement.End
+            horizontalArrangement = if (userId == mark.user?.id && sessionMode == SessionMode.AUTHORIZED) Arrangement.SpaceBetween else Arrangement.End
         ) {
 
-            if (sessionMode == SessionMode.AUTHORIZED) {
-                if (userId == mark.user?.id) {
-                    Box(
+            if (userId == mark.user?.id && sessionMode == SessionMode.AUTHORIZED) {
+                Box(
+                    modifier = Modifier
+                        .size(64.dp)
+                        .clip(CircleShape)
+                        .background(color = MaterialTheme.colorScheme.primary)
+                        .clickable {
+                            onRemoveMark(mark.id)
+                        },
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.trash_can_icon),
+                        contentDescription = null,
+                        tint = Color.Unspecified,
                         modifier = Modifier
-                            .size(64.dp)
-                            .clip(CircleShape)
-                            .background(color = MaterialTheme.colorScheme.primary)
-                            .clickable {
-                                onRemoveMark(mark.id)
-                            },
-                        contentAlignment = Alignment.Center
-                    ) {
+                            .size(32.dp)
+                    )
+                }
+            }
+
+            Row(
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "${mark.likes}",
+                    fontSize = 28.sp,
+                    color = MaterialTheme.colorScheme.primary,
+                    fontWeight = FontWeight.Bold
+                )
+                Box(
+                    modifier = Modifier
+                        .padding(start = 10.dp)
+                        .size(64.dp)
+                        .clip(CircleShape)
+                        .background(color = MaterialTheme.colorScheme.primary)
+                        .clickable {
+                            if(sessionMode == SessionMode.AUTHORIZED) {
+                                if (!mark.isLiked) {
+                                    onLikeMark(mark.id)
+                                } else {
+                                    onDislikeMark(mark.id)
+                                }
+                            }
+                        },
+                    contentAlignment = Alignment.Center
+                ) {
+                    if (markUiState is MarkUiState.Loading) {
+                        CircularProgressIndicator()
+                    } else {
                         Icon(
-                            painter = painterResource(id = R.drawable.trash_can_icon),
+                            painter = if (mark.isLiked) painterResource(id = R.drawable.heart_filled_icon) else painterResource(
+                                id = R.drawable.heart_empty_icon
+                            ),
                             contentDescription = null,
                             tint = Color.Unspecified,
                             modifier = Modifier
@@ -205,51 +247,7 @@ fun MarkInfoButtonSheet(
                         )
                     }
                 }
-
-                Row(
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        text = "${mark.likes}",
-                        fontSize = 28.sp,
-                        color = MaterialTheme.colorScheme.primary,
-                        fontWeight = FontWeight.Bold
-                    )
-                    Box(
-                        modifier = Modifier
-                            .padding(start = 10.dp)
-                            .size(64.dp)
-                            .clip(CircleShape)
-                            .background(color = MaterialTheme.colorScheme.primary)
-                            .clickable {
-                                if(!mark.isLiked){
-                                    onLikeMark(mark.id)
-                                }
-                                else {
-                                    onDislikeMark(mark.id)
-                                }
-                            },
-                        contentAlignment = Alignment.Center
-                    ) {
-                        if(markUiState is MarkUiState.Loading){
-
-                        }
-                        else {
-                            Icon(
-                                painter = if (mark.isLiked) painterResource(id = R.drawable.heart_filled_icon) else painterResource(
-                                    id = R.drawable.heart_empty_icon
-                                ),
-                                contentDescription = null,
-                                tint = Color.Unspecified,
-                                modifier = Modifier
-                                    .size(32.dp)
-                            )
-                        }
-                    }
-                }
             }
         }
     }
-
-
 }

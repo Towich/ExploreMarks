@@ -11,4 +11,6 @@ interface MainRepository {
     fun clearUserData()
     suspend fun likeMark(markId: UUID): ApiResult<MarkUIModel>
     suspend fun dislikeMark(markId: UUID): ApiResult<Boolean>
+    suspend fun createMark(newMark: MarkUIModel): ApiResult<MarkUIModel>
+    suspend fun deleteMark(markId: UUID): ApiResult<Boolean>
 }

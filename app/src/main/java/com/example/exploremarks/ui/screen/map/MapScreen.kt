@@ -16,6 +16,7 @@ import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -38,6 +39,7 @@ import com.yandex.mapkit.map.InputListener
 import com.yandex.mapkit.map.Map
 import com.yandex.mapkit.map.MapObjectCollection
 import com.yandex.mapkit.map.MapObjectTapListener
+import com.yandex.mapkit.map.PlacemarkMapObject
 import com.yandex.mapkit.mapview.MapView
 import com.yandex.runtime.image.ImageProvider
 
@@ -52,33 +54,84 @@ fun MapScreen(
     val listOfMarks by viewModel.listOfMarks.collectAsState()
     val markUiState by viewModel.markUiState.collectAsState()
 
+    val deleteMarkUiState by viewModel.deleteMarkUiState.collectAsState()
+    var indexToRemove by remember { mutableStateOf<Int?>(null) }
+
+    var newMark by remember { mutableStateOf<MarkUIModel?>(null) }
+    val newMarkUiState by viewModel.newMarkUiState.collectAsState()
+
     var isMarksInitialized by remember { mutableStateOf(false) }
 
-    var mapMarks by remember { mutableStateOf<MapObjectCollection?>(null) }
-    val marksTapListeners = remember { mutableListOf<MapObjectTapListener>() }
+    var mapViewCollection by remember { mutableStateOf<MapObjectCollection?>(null) }
+    var listOfPlacemarks = remember { mutableListOf<PlacemarkMapObject>() }
+    val listOfMarksTapListeners = remember { mutableListOf<MapObjectTapListener>() }
 
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     var showMarkInfoBottomSheet by remember { mutableStateOf(false) }
+
     var showNewMarkBottomSheet by remember { mutableStateOf(false) }
+    var newGeoMark by remember { mutableStateOf<PlacemarkMapObject?>(null) }
+
+    var chosenPointNewMark by remember { mutableStateOf(Point()) }
 
     var chosenMark: MarkUIModel? by remember { mutableStateOf(null) }
 
     val imageProviderPinBlue = ImageProvider.fromResource(context, R.drawable.pin_blue_small)
     val imageProviderPinYellow = ImageProvider.fromResource(context, R.drawable.pin_yellow_small)
 
+    when (newMarkUiState) {
+        is MarkUiState.Success<*> -> {
+            newMark = (newMarkUiState as MarkUiState.Success<*>).data as MarkUIModel
+            viewModel.changeNewMarkUIState(MarkUiState.Initial)
+        }
+
+        else -> {}
+    }
+
+    when (deleteMarkUiState){
+        is MarkUiState.Success<*> -> {
+            indexToRemove = (deleteMarkUiState as MarkUiState.Success<*>).data as Int
+            mapViewCollection?.remove(listOfPlacemarks[indexToRemove!!])
+            listOfMarksTapListeners.removeAt(indexToRemove!!)
+            listOfPlacemarks.removeAt(indexToRemove!!)
+            indexToRemove = null
+            showMarkInfoBottomSheet = false
+            viewModel.changeDeleteMarkUIState(MarkUiState.Initial)
+        }
+        else -> {}
+    }
+
 //    val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
 
     val inputListener by remember {
         mutableStateOf(object : InputListener {
-            override fun onMapTap(p0: Map, p1: Point) {
+            override fun onMapTap(map: Map, point: Point) {
 
             }
 
-            override fun onMapLongTap(p0: Map, p1: Point) {
+            override fun onMapLongTap(map: Map, point: Point) {
+                chosenPointNewMark = point
+                showNewMarkBottomSheet = true
 
+                map.move(
+                    CameraPosition(
+                        Point(point.latitude - 0.007f, point.longitude),
+                        15f,
+                        0f,
+                        0f
+                    ),
+                    Animation(Animation.Type.SMOOTH, 2f)
+                ) {}
+                newGeoMark = mapViewCollection!!.addPlacemark().apply {
+                    geometry = point
+                    setIcon(
+                        imageProviderPinYellow,
+                        IconStyle().setScale(0.5f)
+                    )
+//                    addTapListener(listener)
+                }
             }
-
         })
     }
 
@@ -89,7 +142,7 @@ fun MapScreen(
             factory = { context ->
                 MapView(context).apply {
                     this.onStart()
-                    mapMarks = this.mapWindow.map.mapObjects.addCollection()
+                    mapViewCollection = this.mapWindow.map.mapObjects.addCollection()
                     this.mapWindow.map.move(
                         CameraPosition(
                             Point(55.751225, 37.629540),
@@ -112,21 +165,20 @@ fun MapScreen(
                         val listener = MapObjectTapListener { _, _ ->
                             mapView.mapWindow.map.move(
                                 CameraPosition(
-                                    Point(point.latitude, point.longitude),
-                                    mapView.mapWindow.map.cameraPosition.zoom,
+                                    Point(point.latitude - 0.0085f, point.longitude),
+                                    15f,
                                     0f,
                                     0f
                                 ),
-                                Animation(Animation.Type.SMOOTH, 1f),
-                                {}
-                            )
+                                Animation(Animation.Type.SMOOTH, 1f)
+                            ) {}
                             chosenMark = mark
                             showMarkInfoBottomSheet = true
                             true
                         }
-                        marksTapListeners.add(listener)
+                        listOfMarksTapListeners.add(listener)
 
-                        mapMarks!!.addPlacemark().apply {
+                        val placemarkMapObject = mapViewCollection!!.addPlacemark().apply {
                             geometry = point
                             setIcon(
                                 if (sessionMode == SessionMode.AUTHORIZED && viewModel.userData.userId == mark.user?.id) imageProviderPinYellow else imageProviderPinBlue,
@@ -134,9 +186,51 @@ fun MapScreen(
                             )
                             addTapListener(listener)
                         }
+
+                        listOfPlacemarks.add(placemarkMapObject)
                     }
 
                     isMarksInitialized = true
+                }
+                if (newMark != null) {
+                    val _newMark = newMark!!
+                    newMark = null
+                    val listener = MapObjectTapListener { _, _ ->
+                        mapView.mapWindow.map.move(
+                            CameraPosition(
+                                Point(
+                                    _newMark.latitude - 0.0085f,
+                                    _newMark.longitude
+                                ),
+                                15f,
+                                0f,
+                                0f
+                            ),
+                            Animation(Animation.Type.SMOOTH, 1f)
+                        ) {}
+                        chosenMark = _newMark
+                        showMarkInfoBottomSheet = true
+                        true
+                    }
+
+                    listOfMarksTapListeners.add(listener)
+
+                    val placemarkMapObject = mapViewCollection!!.addPlacemark().apply {
+                        geometry = chosenPointNewMark
+                        setIcon(
+                            imageProviderPinYellow,
+                            IconStyle().setScale(0.5f)
+                        )
+                        addTapListener(listener)
+                    }
+
+                    listOfPlacemarks.add(placemarkMapObject)
+
+                    showNewMarkBottomSheet = false
+                    chosenPointNewMark = Point()
+                    newGeoMark = null
+
+                    viewModel.changeNewMarkUIState(MarkUiState.Initial)
                 }
             },
             modifier = Modifier
@@ -151,7 +245,7 @@ fun MapScreen(
                 userId = viewModel.getUserId(),
                 sessionMode = sessionMode,
                 onRemoveMark = { markId ->
-
+                    viewModel.performDeleteMark(markId)
                 },
                 onLikeMark = { markId ->
                     viewModel.performLikeMark(markId = markId)
@@ -170,10 +264,13 @@ fun MapScreen(
             NewMarkButtonSheet(
                 sheetState = sheetState,
                 sessionMode = sessionMode,
-                onCreateMark = { newMark ->
-
+                geoPoint = chosenPointNewMark,
+                onCreateMark = { markUiModel ->
+                    newGeoMark?.let { it1 -> mapViewCollection?.remove(it1) }
+                    viewModel.performCreateMark(markUiModel)
                 },
                 onDismissRequest = {
+                    newGeoMark?.let { it1 -> mapViewCollection?.remove(it1) }
                     showNewMarkBottomSheet = false
                 }
             )

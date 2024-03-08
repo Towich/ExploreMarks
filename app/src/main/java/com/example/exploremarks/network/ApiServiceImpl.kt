@@ -196,4 +196,89 @@ class ApiServiceImpl(
             return ApiResult.Error("${e.message}")
         }
     }
+
+    override suspend fun createMark(
+        newMark: MarkUIModel,
+        accessToken: String?,
+        tokenType: String?
+    ): ApiResult<MarkUIModel> {
+        val url = ApiRoutes.BASE_URL + ApiRoutes.TAGS
+
+        try {
+            val response = client.submitForm(
+                url = url,
+                formParameters = parameters {
+                    append("latitude", newMark.latitude.toString())
+                    append("longitude", newMark.longitude.toString())
+                    append("description", newMark.description)
+                    append("image", newMark.image ?: "")
+                }
+            ){
+                headers {
+                    if(accessToken != null && tokenType != null) {
+                        append(HttpHeaders.Authorization, "$tokenType $accessToken")
+                    }
+                }
+            }
+
+
+            return when(response.status.value){
+                201 -> {
+                    ApiResult.Success(response.body<MarkSerializable>().convertToUIModel())
+                }
+
+                422 -> {
+                    ApiResult.Error("Error 422: Validation Error!")
+                }
+
+                else -> {
+                    ApiResult.Error("Code ${response.status.value}: ${response.status.description}")
+                }
+            }
+
+        } catch (e: IOException) {
+            return ApiResult.Error("No connection!")
+        } catch (e: Exception) {
+            return ApiResult.Error("${e.message}")
+        }
+    }
+
+    override suspend fun deleteMark(
+        markId: UUID,
+        accessToken: String?,
+        tokenType: String?
+    ): ApiResult<Boolean> {
+        val url = ApiRoutes.BASE_URL + ApiRoutes.TAGS + "$markId"
+
+        try {
+            val response = client.delete {
+                url(url)
+                headers {
+                    if(accessToken != null && tokenType != null) {
+                        append(HttpHeaders.Authorization, "$tokenType $accessToken")
+                    }
+                }
+            }
+
+
+            return when(response.status.value){
+                204 -> {
+                    ApiResult.Success(true)
+                }
+
+                422 -> {
+                    ApiResult.Error("Error 422: Validation Error!")
+                }
+
+                else -> {
+                    ApiResult.Error("Code ${response.status.value}: ${response.status.description}")
+                }
+            }
+
+        } catch (e: IOException) {
+            return ApiResult.Error("No connection!")
+        } catch (e: Exception) {
+            return ApiResult.Error("${e.message}")
+        }
+    }
 }

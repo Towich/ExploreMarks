@@ -53,4 +53,20 @@ class MainRepositoryImpl(
         )
     }
 
+    override suspend fun createMark(newMark: MarkUIModel): ApiResult<MarkUIModel> {
+        return apiService.createMark(
+            newMark = newMark,
+            accessToken = cacheSession.userData.accessToken,
+            tokenType = cacheSession.userData.tokenType
+        )
+    }
+
+    override suspend fun deleteMark(markId: UUID): ApiResult<Boolean> {
+        return apiService.deleteMark(
+            markId = markId,
+            accessToken = cacheSession.userData.accessToken,
+            tokenType = cacheSession.userData.tokenType
+        )
+    }
+
 }

@@ -23,6 +23,8 @@ fun CustomCommonTextField(
     value: String,
     placeholderText: String,
     onValueChange: (newText: String) -> Unit,
+    borderColor: Color = Color.White,
+    textColor: Color = Color.White,
     modifier: Modifier = Modifier
 ){
     TextField(
@@ -44,7 +46,7 @@ fun CustomCommonTextField(
         placeholder = {
             Text(
                 text = placeholderText,
-                color = Color.White
+                color = textColor
             )
         },
         singleLine = true,
@@ -52,7 +54,7 @@ fun CustomCommonTextField(
             .fillMaxWidth()
             .border(
                 width = 2.dp,
-                color = Color.White,
+                color = borderColor,
                 shape = RoundedCornerShape(30.dp)
             )
     )

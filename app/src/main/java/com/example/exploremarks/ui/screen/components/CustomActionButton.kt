@@ -23,6 +23,7 @@ fun CustomActionButton(
     title: String,
     isLoading: Boolean = false,
     modifier: Modifier = Modifier,
+    backgroundColor: Color = MaterialTheme.colorScheme.primary,
     onClick: () -> Unit
 ){
     Button(
@@ -32,7 +33,7 @@ fun CustomActionButton(
             .height(58.dp)
             .fillMaxWidth(),
         colors = ButtonDefaults.buttonColors(
-            containerColor = MaterialTheme.colorScheme.primary
+            containerColor = backgroundColor
         )
     ) {
         if(isLoading){
