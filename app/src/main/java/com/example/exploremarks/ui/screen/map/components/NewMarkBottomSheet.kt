@@ -2,7 +2,6 @@ package com.example.exploremarks.ui.screen.map.components
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -20,7 +19,10 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.SheetState
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -29,25 +31,19 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.exploremarks.R
 import com.example.exploremarks.data.SessionMode
 import com.example.exploremarks.data.model.MarkUIModel
-import com.example.exploremarks.ui.screen.map.MarkUiState
-import java.util.UUID
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
-fun MarkInfoButtonSheet(
+fun NewMarkButtonSheet(
     sheetState: SheetState,
-    markUiState: MarkUiState,
-    mark: MarkUIModel,
     sessionMode: SessionMode,
-    userId: UUID,
-    onRemoveMark: (markId: UUID) -> Unit,
-    onLikeMark: (markId: UUID) -> Unit,
-    onDislikeMark: (markId: UUID) -> Unit,
+    onCreateMark: (newMark: MarkUIModel) -> Unit,
     onDismissRequest: () -> Unit
 ) {
     ModalBottomSheet(
@@ -80,16 +76,14 @@ fun MarkInfoButtonSheet(
             ) {
                 Text(
                     text = "Latitude",
-                    color = MaterialTheme.colorScheme.secondary,
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 20.sp,
-                )
-                Text(
-                    text = "${mark.latitude}",
                     color = MaterialTheme.colorScheme.primary,
-                    fontWeight = FontWeight.Bold,
-
+                    fontWeight = FontWeight.Bold
                 )
+//                Text(
+//                    text = "${mark.latitude}",
+//                    color = MaterialTheme.colorScheme.secondary,
+//                    fontWeight = FontWeight.Bold
+//                )
             }
             Column(
                 modifier = Modifier,
@@ -97,15 +91,14 @@ fun MarkInfoButtonSheet(
             ) {
                 Text(
                     text = "Longitude",
-                    color = MaterialTheme.colorScheme.secondary,
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 20.sp,
-                )
-                Text(
-                    text = "${mark.longitude}",
                     color = MaterialTheme.colorScheme.primary,
                     fontWeight = FontWeight.Bold
                 )
+//                Text(
+//                    text = "${mark.longitude}",
+//                    color = MaterialTheme.colorScheme.secondary,
+//                    fontWeight = FontWeight.Bold
+//                )
             }
         }
 
@@ -117,16 +110,14 @@ fun MarkInfoButtonSheet(
         ) {
             Text(
                 text = "Author",
-                color = MaterialTheme.colorScheme.secondary,
-                fontWeight = FontWeight.Bold,
-                fontSize = 20.sp,
-            )
-            Text(
-                text = mark.user?.username ?: "Unknown",
                 color = MaterialTheme.colorScheme.primary,
-                fontWeight = FontWeight.Bold,
-                fontSize = 20.sp,
+                fontWeight = FontWeight.Bold
             )
+//            Text(
+//                text = mark.user?.username ?: "Unknown",
+//                color = MaterialTheme.colorScheme.secondary,
+//                fontWeight = FontWeight.Bold
+//            )
         }
 
         Row(
@@ -137,9 +128,8 @@ fun MarkInfoButtonSheet(
         ) {
             Text(
                 text = "Description",
-                color = MaterialTheme.colorScheme.secondary,
-                fontWeight = FontWeight.Bold,
-                fontSize = 20.sp,
+                color = MaterialTheme.colorScheme.primary,
+                fontWeight = FontWeight.Bold
             )
         }
 
@@ -149,12 +139,11 @@ fun MarkInfoButtonSheet(
                 .fillMaxWidth(),
             horizontalArrangement = Arrangement.Center
         ) {
-            Text(
-                text = mark.description,
-                textAlign = TextAlign.Center,
-                color = MaterialTheme.colorScheme.primary,
-                fontWeight = FontWeight.Bold
-            )
+//            Text(
+//                text = mark.description,
+//                textAlign = TextAlign.Center,
+//                color = MaterialTheme.colorScheme.secondary
+//            )
         }
 
 //        Row(
@@ -176,80 +165,88 @@ fun MarkInfoButtonSheet(
 //            )
 //        }
 
-
         Row(
             modifier = Modifier
                 .padding(top = 50.dp, start = 20.dp, end = 20.dp, bottom = 20.dp)
                 .fillMaxWidth(),
-            horizontalArrangement = if (userId == mark.user?.id) Arrangement.SpaceBetween else Arrangement.End
+            horizontalArrangement = Arrangement.SpaceBetween
         ) {
+            Box(
+                modifier = Modifier
+                    .size(64.dp)
+                    .clip(CircleShape)
+                    .background(color = MaterialTheme.colorScheme.surface),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    painter = painterResource(id = R.drawable.trash_can_icon),
+                    contentDescription = null,
+                    tint = Color.Unspecified,
+                    modifier = Modifier
+                        .size(32.dp)
+                )
+            }
 
-            if (sessionMode == SessionMode.AUTHORIZED) {
-                if (userId == mark.user?.id) {
-                    Box(
-                        modifier = Modifier
-                            .size(64.dp)
-                            .clip(CircleShape)
-                            .background(color = MaterialTheme.colorScheme.primary)
-                            .clickable {
-                                onRemoveMark(mark.id)
-                            },
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Icon(
-                            painter = painterResource(id = R.drawable.trash_can_icon),
-                            contentDescription = null,
-                            tint = Color.Unspecified,
-                            modifier = Modifier
-                                .size(32.dp)
-                        )
-                    }
-                }
-
-                Row(
-                    verticalAlignment = Alignment.CenterVertically
+            Row(
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+//                Text(
+//                    text = "${mark.likes}",
+//                    fontSize = 28.sp,
+//                    color = MaterialTheme.colorScheme.primary,
+//                    fontWeight = FontWeight.Bold
+//                )
+                Box(
+                    modifier = Modifier
+                        .padding(start = 10.dp)
+                        .size(64.dp)
+                        .clip(CircleShape)
+                        .background(color = MaterialTheme.colorScheme.surface),
+                    contentAlignment = Alignment.Center
                 ) {
-                    Text(
-                        text = "${mark.likes}",
-                        fontSize = 28.sp,
-                        color = MaterialTheme.colorScheme.primary,
-                        fontWeight = FontWeight.Bold
-                    )
-                    Box(
-                        modifier = Modifier
-                            .padding(start = 10.dp)
-                            .size(64.dp)
-                            .clip(CircleShape)
-                            .background(color = MaterialTheme.colorScheme.primary)
-                            .clickable {
-                                if(!mark.isLiked){
-                                    onLikeMark(mark.id)
-                                }
-                                else {
-                                    onDislikeMark(mark.id)
-                                }
-                            },
-                        contentAlignment = Alignment.Center
-                    ) {
-                        if(markUiState is MarkUiState.Loading){
-
-                        }
-                        else {
-                            Icon(
-                                painter = if (mark.isLiked) painterResource(id = R.drawable.heart_filled_icon) else painterResource(
-                                    id = R.drawable.heart_empty_icon
-                                ),
-                                contentDescription = null,
-                                tint = Color.Unspecified,
-                                modifier = Modifier
-                                    .size(32.dp)
-                            )
-                        }
-                    }
+//                    Icon(
+//                        painter = if(mark.isLiked) painterResource(id = R.drawable.heart_filled_icon) else painterResource(id = R.drawable.heart_empty_icon),
+//                        contentDescription = null,
+//                        tint = Color.Unspecified,
+//                        modifier = Modifier
+//                            .size(32.dp)
+//                    )
                 }
             }
+
         }
+
+//        Button(onClick = {
+//            scope.launch { sheetState.hide() }.invokeOnCompletion {
+//                if (!sheetState.isVisible) {
+//                    showBottomSheet = false
+//                    chosenPoint = null
+//                }
+//            }
+//        }) {
+//            if (chosenPoint != null) {
+//                Text("${chosenPoint!!.latitude} ${chosenPoint!!.longitude}")
+//            } else {
+//                Text("No chosenPoint!")
+//            }
+//        }
     }
-
-
 }
+
+//@OptIn(ExperimentalMaterial3Api::class)
+//@Preview
+//@Composable
+//private fun Preview(){
+//    val state = rememberModalBottomSheetState()
+//    val scope = rememberCoroutineScope()
+//
+//    LaunchedEffect(key1 = null) {
+//        state.expand()
+//    }
+//
+//    MarkInfoButtonSheet(
+//        sheetState = state,
+//        chosenPoint = null,
+//        onDismissRequest = {}
+//    )
+//}

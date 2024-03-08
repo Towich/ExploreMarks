@@ -8,6 +8,8 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
+import com.example.exploremarks.data.SessionMode
+import com.example.exploremarks.data.model.CacheSession
 import com.example.exploremarks.ui.screen.login.LoginScreen
 import com.example.exploremarks.ui.screen.map.MapScreen
 import com.example.exploremarks.ui.screen.register.RegisterScreen
@@ -16,9 +18,14 @@ import com.example.exploremarks.ui.screen.util.EnterAnimation
 @Composable
 fun Navigation(
     context: Context,
-    navController: NavHostController
+    navController: NavHostController,
+    isAuthorized: Boolean,
+    cacheSession: CacheSession
 ) {
-    NavHost(navController = navController, startDestination = Screen.LoginScreen.route) {
+    NavHost(
+        navController = navController,
+        startDestination = if (isAuthorized) Screen.MapScreen.route else Screen.LoginScreen.route
+    ) {
         composable(
             route = Screen.LoginScreen.route + "?showSuccessfulRegistered={showSuccessfulRegistered}",
             arguments = listOf(navArgument("showSuccessfulRegistered") { defaultValue = false })
@@ -27,7 +34,8 @@ fun Navigation(
                 LoginScreen(
                     navController = navController,
                     showSuccessfulRegistered = it.arguments?.getBoolean("showSuccessfulRegistered")
-                        ?: false
+                        ?: false,
+                    cacheSession = cacheSession
                 )
             }
         }
@@ -42,7 +50,8 @@ fun Navigation(
         composable(route = Screen.MapScreen.route) {
             EnterAnimation {
                 MapScreen(
-                    context = context
+                    context = context,
+                    sessionMode = cacheSession.sessionMode
                 )
             }
         }

@@ -31,21 +31,24 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.example.exploremarks.R
+import com.example.exploremarks.data.SessionMode
+import com.example.exploremarks.data.model.CacheSession
 import com.example.exploremarks.navigation.Screen
 import com.example.exploremarks.ui.screen.components.CustomActionButton
 import com.example.exploremarks.ui.screen.components.CustomClickableText
 import com.example.exploremarks.ui.screen.components.CustomCommonTextField
 import com.example.exploremarks.ui.screen.components.CustomPasswordTextField
-import com.example.exploremarks.ui.screen.util.AuthorizationScreenUiState
+import com.example.exploremarks.ui.screen.util.AuthScreenUiState
 import kotlinx.coroutines.launch
 
 @Composable
 fun LoginScreen(
     navController: NavController,
     showSuccessfulRegistered: Boolean,
+    cacheSession: CacheSession,
     viewModel: LoginViewModel = hiltViewModel()
 ) {
-    var inputUsername by remember { mutableStateOf("") }
+    var inputUsername by remember { mutableStateOf(viewModel.getUsername() ?: "") }
     var inputPassword by remember { mutableStateOf("") }
     val uiState by viewModel.uiState.collectAsState()
 
@@ -61,15 +64,16 @@ fun LoginScreen(
     }
 
     when(uiState){
-        is AuthorizationScreenUiState.Error -> {
+        is AuthScreenUiState.Error -> {
             inputUsername = ""
             inputPassword = ""
             LaunchedEffect(key1 = "key1") {
-                snackbarHostState.showSnackbar((uiState as AuthorizationScreenUiState.Error).message)
-                viewModel.changeUiState(AuthorizationScreenUiState.Initial)
+                snackbarHostState.showSnackbar((uiState as AuthScreenUiState.Error).message)
+                viewModel.changeUiState(AuthScreenUiState.Initial)
             }
         }
-        is AuthorizationScreenUiState.Success -> {
+        is AuthScreenUiState.Success -> {
+            cacheSession.sessionMode = SessionMode.AUTHORIZED
             navController.navigate(Screen.MapScreen.route) {
                 popUpTo(0)
             }
@@ -127,14 +131,14 @@ fun LoginScreen(
 
                 CustomActionButton(
                     title = "SIGN IN",
-                    isLoading = uiState == AuthorizationScreenUiState.Loading,
+                    isLoading = uiState == AuthScreenUiState.Loading,
                     modifier = Modifier
                         .padding(top = 40.dp)
                 ) {
                     keyboardController?.hide()
                     if(inputUsername.isEmpty() || inputPassword.isEmpty()){
                         scope.launch {
-                            snackbarHostState.showSnackbar("Username and password can't be empty!")
+                            snackbarHostState.showSnackbar("Username or password can't be empty!")
                         }
                     }
                     else{
@@ -148,6 +152,7 @@ fun LoginScreen(
                         .padding(top = 30.dp)
                 ) {
                     keyboardController?.hide()
+                    viewModel.performClearUserData()
                     navController.navigate(Screen.MapScreen.route) {
                         popUpTo(0)
                     }
@@ -155,7 +160,7 @@ fun LoginScreen(
 
                 Row(
                     modifier = Modifier
-                        .padding(top = 20.dp)
+                        .padding(top = 40.dp)
                         .fillMaxWidth(),
                     horizontalArrangement = Arrangement.Center
                 ) {
@@ -170,7 +175,6 @@ fun LoginScreen(
                 }
             }
         }
-
     }
 }
 

@@ -38,7 +38,7 @@ import com.example.exploremarks.ui.screen.components.CustomActionButton
 import com.example.exploremarks.ui.screen.components.CustomClickableText
 import com.example.exploremarks.ui.screen.components.CustomCommonTextField
 import com.example.exploremarks.ui.screen.components.CustomPasswordTextField
-import com.example.exploremarks.ui.screen.util.AuthorizationScreenUiState
+import com.example.exploremarks.ui.screen.util.AuthScreenUiState
 import com.example.exploremarks.ui.theme.ExploreMarksTheme
 import kotlinx.coroutines.launch
 
@@ -58,15 +58,15 @@ fun RegisterScreen(
     val keyboardController = LocalSoftwareKeyboardController.current
 
     when(uiState){
-        is AuthorizationScreenUiState.Error -> {
+        is AuthScreenUiState.Error -> {
             inputUsername = ""
             inputPassword = ""
             LaunchedEffect(key1 = "key1") {
-                snackbarHostState.showSnackbar((uiState as AuthorizationScreenUiState.Error).message)
-                viewModel.changeUiState(AuthorizationScreenUiState.Initial)
+                snackbarHostState.showSnackbar((uiState as AuthScreenUiState.Error).message)
+                viewModel.changeUiState(AuthScreenUiState.Initial)
             }
         }
-        is AuthorizationScreenUiState.Success -> {
+        is AuthScreenUiState.Success -> {
             navController.navigate(Screen.LoginScreen.route + "?showSuccessfulRegistered=true") {
                 popUpTo(0)
             }
@@ -122,7 +122,7 @@ fun RegisterScreen(
 
                 CustomActionButton(
                     title = "SIGN UP",
-                    isLoading = uiState == AuthorizationScreenUiState.Loading,
+                    isLoading = uiState == AuthScreenUiState.Loading,
                     modifier = Modifier
                         .padding(top = 40.dp)
                 ) {

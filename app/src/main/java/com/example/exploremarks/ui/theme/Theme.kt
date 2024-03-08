@@ -16,17 +16,17 @@ import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
 
 private val DarkColorScheme = darkColorScheme(
-    primary = BlueSea,
-    secondary = Green4,
+    primary = YellowFF,
+    secondary = CyanC1,
     tertiary = Pink80,
-    background = Green1,
+    background = Green40,
     surface = Green2
 )
 
 private val LightColorScheme = lightColorScheme(
-    primary = BlueSea,
-    secondary = Green4,
-    tertiary = Pink40,
+    primary = Blue,
+    secondary = DarkGreen,
+    tertiary = WhiteF9,
     background = Green1,
     surface = Green2
 
@@ -62,7 +62,9 @@ fun ExploreMarksTheme(
         SideEffect {
             val window = (view.context as Activity).window
             window.statusBarColor = colorScheme.background.toArgb()
-            WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = darkTheme
+            window.navigationBarColor = colorScheme.background.toArgb()
+            WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = !darkTheme
+            WindowCompat.getInsetsController(window, view).isAppearanceLightNavigationBars = !darkTheme
         }
     }
 

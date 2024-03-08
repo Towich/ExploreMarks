@@ -32,7 +32,7 @@ fun CustomActionButton(
             .height(58.dp)
             .fillMaxWidth(),
         colors = ButtonDefaults.buttonColors(
-            containerColor = MaterialTheme.colorScheme.secondary
+            containerColor = MaterialTheme.colorScheme.primary
         )
     ) {
         if(isLoading){
