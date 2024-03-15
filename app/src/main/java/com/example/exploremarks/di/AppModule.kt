@@ -1,8 +1,9 @@
 package com.example.exploremarks.di
 
 import android.app.Application
-import com.example.exploremarks.data.model.CacheSession
-import com.example.exploremarks.data.model.SharedPref
+import com.example.exploremarks.data.source.AppContentProvider
+import com.example.exploremarks.data.source.CacheSession
+import com.example.exploremarks.data.source.SharedPref
 import com.example.exploremarks.data.repository.AuthorizationRepository
 import com.example.exploremarks.data.repository.AuthorizationRepositoryImpl
 import com.example.exploremarks.data.repository.MainRepositoryImpl
@@ -24,13 +25,15 @@ object AppModule {
         app: Application,
         apiService: ApiService,
         cacheSession: CacheSession,
-        sharedPref: SharedPref
+        sharedPref: SharedPref,
+        appContentProvider: AppContentProvider
     ): MainRepository {
         return MainRepositoryImpl(
             appContext = app,
             apiService = apiService,
             cacheSession = cacheSession,
-            sharedPref = sharedPref
+            sharedPref = sharedPref,
+            appContentProvider = appContentProvider
         )
     }
 
@@ -52,13 +55,19 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideSharedPref(app: Application): SharedPref {
-        return SharedPref(app)
+    fun provideSharedPref(appContext: Application): SharedPref {
+        return SharedPref(appContext)
     }
 
     @Provides
     @Singleton
     fun provideCacheSession(sharedPref: SharedPref): CacheSession {
         return CacheSession(sharedPref = sharedPref)
+    }
+
+    @Provides
+    @Singleton
+    fun provideAppContentProvider(appContext: Application): AppContentProvider {
+        return AppContentProvider(appContext = appContext)
     }
 }

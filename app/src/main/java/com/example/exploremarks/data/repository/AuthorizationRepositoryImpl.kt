@@ -1,8 +1,8 @@
 package com.example.exploremarks.data.repository
 
 import android.app.Application
-import com.example.exploremarks.data.model.CacheSession
-import com.example.exploremarks.data.model.SharedPref
+import com.example.exploremarks.data.source.CacheSession
+import com.example.exploremarks.data.source.SharedPref
 import com.example.exploremarks.network.ApiService
 import com.example.exploremarks.network.serializable.LoginRequestSerializable
 import com.example.exploremarks.network.serializable.LoginResponseSerializable

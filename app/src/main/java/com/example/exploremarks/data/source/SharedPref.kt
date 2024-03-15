@@ -1,4 +1,4 @@
-package com.example.exploremarks.data.model
+package com.example.exploremarks.data.source
 
 import android.app.Application
 import android.content.Context

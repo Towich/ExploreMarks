@@ -2,14 +2,11 @@ package com.example.exploremarks.navigation
 
 import android.content.Context
 import androidx.compose.runtime.Composable
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
-import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
-import com.example.exploremarks.data.SessionMode
-import com.example.exploremarks.data.model.CacheSession
+import com.example.exploremarks.data.source.CacheSession
 import com.example.exploremarks.ui.screen.login.LoginScreen
 import com.example.exploremarks.ui.screen.map.MapScreen
 import com.example.exploremarks.ui.screen.register.RegisterScreen

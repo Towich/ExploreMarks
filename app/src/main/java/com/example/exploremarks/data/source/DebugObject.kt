@@ -1,4 +1,4 @@
-package com.example.exploremarks.data
+package com.example.exploremarks.data.source
 
 import com.example.exploremarks.data.model.MarkUIModel
 import com.example.exploremarks.data.model.UserUIModel

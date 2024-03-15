@@ -1,5 +1,7 @@
 package com.example.exploremarks.network
 
+import android.graphics.Bitmap
+import androidx.compose.ui.graphics.asAndroidBitmap
 import com.example.exploremarks.data.model.MarkUIModel
 import com.example.exploremarks.network.serializable.LoginRequestSerializable
 import com.example.exploremarks.network.serializable.LoginResponseSerializable
@@ -10,14 +12,20 @@ import com.example.exploremarks.network.util.ApiResult
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.delete
+import io.ktor.client.request.forms.formData
 import io.ktor.client.request.forms.submitForm
+import io.ktor.client.request.forms.submitFormWithBinaryData
 import io.ktor.client.request.get
 import io.ktor.client.request.headers
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.client.request.url
+import io.ktor.http.Headers
 import io.ktor.http.HttpHeaders
 import io.ktor.http.parameters
+import io.ktor.utils.io.core.buildPacket
+import io.ktor.utils.io.core.writeFully
+import java.io.ByteArrayOutputStream
 import java.io.IOException
 import java.util.UUID
 
@@ -28,12 +36,12 @@ class ApiServiceImpl(
     override suspend fun register(userData: RegisterRequestSerializable): ApiResult<RegisterResponseSerializable> {
         val url = ApiRoutes.BASE_URL + ApiRoutes.REGISTER
 
-        try{
+        try {
             val response = client.post(url) {
                 setBody(userData)
             }
 
-            return when(response.status.value){
+            return when (response.status.value) {
                 in 200..299 -> {
                     ApiResult.Success(response.body())
                 }
@@ -61,7 +69,7 @@ class ApiServiceImpl(
     override suspend fun login(userData: LoginRequestSerializable): ApiResult<LoginResponseSerializable> {
         val url = ApiRoutes.BASE_URL + ApiRoutes.LOGIN
 
-        try{
+        try {
             val response = client.submitForm(
                 url = url,
                 formParameters = parameters {
@@ -74,7 +82,7 @@ class ApiServiceImpl(
                 }
             )
 
-            return when(response.status.value){
+            return when (response.status.value) {
                 in 200..299 -> {
                     ApiResult.Success(response.body())
                 }
@@ -95,22 +103,26 @@ class ApiServiceImpl(
         }
     }
 
-    override suspend fun getMarks(accessToken: String?, tokenType: String?): ApiResult<List<MarkUIModel>> {
+    override suspend fun getMarks(
+        accessToken: String?,
+        tokenType: String?
+    ): ApiResult<List<MarkUIModel>> {
         val url = ApiRoutes.BASE_URL + ApiRoutes.TAGS
 
         try {
             val response = client.get {
                 url(url)
                 headers {
-                    if(accessToken != null && tokenType != null) {
+                    if (accessToken != null && tokenType != null) {
                         append(HttpHeaders.Authorization, "$tokenType $accessToken")
                     }
                 }
             }
 
-            return when(response.status.value){
+            return when (response.status.value) {
                 in 200..299 -> {
-                    ApiResult.Success(response.body<List<MarkSerializable>>().map { it.convertToUIModel() })
+                    ApiResult.Success(
+                        response.body<List<MarkSerializable>>().map { it.convertToUIModel() })
                 }
 
                 422 -> {
@@ -129,20 +141,24 @@ class ApiServiceImpl(
         }
     }
 
-    override suspend fun likeMark(accessToken: String?, tokenType: String?, markId: UUID): ApiResult<MarkUIModel> {
+    override suspend fun likeMark(
+        accessToken: String?,
+        tokenType: String?,
+        markId: UUID
+    ): ApiResult<MarkUIModel> {
         val url = ApiRoutes.BASE_URL + ApiRoutes.TAGS + "$markId" + ApiRoutes.LIKES
 
         try {
             val response = client.post {
                 url(url)
                 headers {
-                    if(accessToken != null && tokenType != null) {
+                    if (accessToken != null && tokenType != null) {
                         append(HttpHeaders.Authorization, "$tokenType $accessToken")
                     }
                 }
             }
 
-            return when(response.status.value){
+            return when (response.status.value) {
                 201 -> {
                     ApiResult.Success(response.body<MarkSerializable>().convertToUIModel())
                 }
@@ -163,20 +179,24 @@ class ApiServiceImpl(
         }
     }
 
-    override suspend fun dislikeMark(accessToken: String?, tokenType: String?, markId: UUID): ApiResult<Boolean> {
+    override suspend fun dislikeMark(
+        accessToken: String?,
+        tokenType: String?,
+        markId: UUID
+    ): ApiResult<Boolean> {
         val url = ApiRoutes.BASE_URL + ApiRoutes.TAGS + "$markId" + ApiRoutes.LIKES
 
         try {
             val response = client.delete {
                 url(url)
                 headers {
-                    if(accessToken != null && tokenType != null) {
+                    if (accessToken != null && tokenType != null) {
                         append(HttpHeaders.Authorization, "$tokenType $accessToken")
                     }
                 }
             }
 
-            return when(response.status.value){
+            return when (response.status.value) {
                 204 -> {
                     ApiResult.Success(true)
                 }
@@ -199,30 +219,40 @@ class ApiServiceImpl(
 
     override suspend fun createMark(
         newMark: MarkUIModel,
+        imageByteArray: ByteArray?,
         accessToken: String?,
         tokenType: String?
     ): ApiResult<MarkUIModel> {
         val url = ApiRoutes.BASE_URL + ApiRoutes.TAGS
 
         try {
-            val response = client.submitForm(
+            val response = client.submitFormWithBinaryData(
                 url = url,
-                formParameters = parameters {
+                formData = formData {
                     append("latitude", newMark.latitude.toString())
                     append("longitude", newMark.longitude.toString())
                     append("description", newMark.description)
-                    append("image", newMark.image ?: "")
+
+                    if (imageByteArray != null) {
+                        appendInput(key = "image", headers = Headers.build {
+                            append(
+                                HttpHeaders.ContentDisposition,
+                                "filename=image.jpg"
+                            )
+                        }){
+                            buildPacket { writeFully(imageByteArray) }
+                        }
+                    }
                 }
             ){
                 headers {
-                    if(accessToken != null && tokenType != null) {
+                    if (accessToken != null && tokenType != null) {
                         append(HttpHeaders.Authorization, "$tokenType $accessToken")
                     }
                 }
             }
 
-
-            return when(response.status.value){
+            return when (response.status.value) {
                 201 -> {
                     ApiResult.Success(response.body<MarkSerializable>().convertToUIModel())
                 }
@@ -254,14 +284,14 @@ class ApiServiceImpl(
             val response = client.delete {
                 url(url)
                 headers {
-                    if(accessToken != null && tokenType != null) {
+                    if (accessToken != null && tokenType != null) {
                         append(HttpHeaders.Authorization, "$tokenType $accessToken")
                     }
                 }
             }
 
 
-            return when(response.status.value){
+            return when (response.status.value) {
                 204 -> {
                     ApiResult.Success(true)
                 }

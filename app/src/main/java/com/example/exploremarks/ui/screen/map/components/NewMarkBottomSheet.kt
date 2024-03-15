@@ -1,63 +1,70 @@
 package com.example.exploremarks.ui.screen.map.components
 
+import android.net.Uri
+import android.util.Log
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
-import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.ime
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Clear
+import androidx.compose.material3.BottomSheetDefaults
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.SheetState
 import androidx.compose.material3.Text
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.exploremarks.R
-import com.example.exploremarks.data.SessionMode
+import com.example.exploremarks.data.model.SessionMode
 import com.example.exploremarks.data.model.MarkUIModel
 import com.example.exploremarks.ui.screen.components.CustomActionButton
 import com.example.exploremarks.ui.screen.components.CustomCommonTextField
 import com.yandex.mapkit.geometry.Point
 import java.util.UUID
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NewMarkButtonSheet(
     sheetState: SheetState,
-    sessionMode: SessionMode,
+    chosenImageBitmap: ImageBitmap?,
     geoPoint: Point,
     onCreateMark: (newMark: MarkUIModel) -> Unit,
+    onImageChosen: (uri: Uri?) -> ImageBitmap?,
+    onImageRemove: () -> Unit,
     onDismissRequest: () -> Unit
 ) {
-    var inputDescription by remember { mutableStateOf("") }
+    val galleryLauncher =
+        rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri ->
+            if (uri != null) onImageChosen(uri)
+        }
 
     ModalBottomSheet(
         onDismissRequest = {
@@ -65,7 +72,9 @@ fun NewMarkButtonSheet(
         },
         sheetState = sheetState,
         containerColor = MaterialTheme.colorScheme.background,
-        scrimColor = Color.Transparent
+        scrimColor = Color.Transparent,
+        dragHandle = { BottomSheetDefaults.DragHandle() },
+        windowInsets = WindowInsets.ime
     ) {
         // Sheet content
 
@@ -76,6 +85,8 @@ fun NewMarkButtonSheet(
                 .padding(start = 20.dp, end = 20.dp, bottom = 20.dp),
             verticalArrangement = Arrangement.SpaceBetween
         ) {
+            var inputDescription by remember { mutableStateOf("") }
+
             Column {
                 Text(
                     text = "New Mark",
@@ -135,13 +146,67 @@ fun NewMarkButtonSheet(
                     modifier = Modifier.padding(top = 20.dp)
                 )
 
-                CustomActionButton(
-                    title = "CHOOSE IMAGE",
-                    backgroundColor = MaterialTheme.colorScheme.secondary,
-                    modifier = Modifier.padding(top = 20.dp)
-                ) {
-                    // TODO: onClick()
+                if (chosenImageBitmap == null) {
+                    CustomActionButton(
+                        title = "CHOOSE IMAGE",
+                        backgroundColor = MaterialTheme.colorScheme.secondary,
+                        modifier = Modifier.padding(top = 20.dp)
+                    ) {
+                        galleryLauncher.launch("image/*")
+                    }
+                } else {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 20.dp)
+                    ) {
+                        Button(
+                            onClick = { galleryLauncher.launch("image/*") },
+                            shape = RoundedCornerShape(30.dp),
+                            modifier = Modifier
+                                .fillMaxWidth(0.85f)
+                                .height(58.dp),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = MaterialTheme.colorScheme.secondary
+                            )
+                        ) {
+                            Row(
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(
+                                    text = "Image: ${chosenImageBitmap.height}x${chosenImageBitmap.width} px.",
+                                    fontSize = 20.sp,
+                                    color = Color.White,
+                                    fontWeight = FontWeight.Bold,
+                                    overflow = TextOverflow.Ellipsis
+                                )
+                                Image(
+                                    bitmap = chosenImageBitmap,
+                                    contentDescription = null,
+                                    modifier = Modifier
+                                        .padding(start = 20.dp)
+                                        .height(58.dp),
+                                )
+                            }
+                        }
+
+
+                        IconButton(onClick = { onImageRemove() }) {
+                            Icon(
+                                imageVector = Icons.Filled.Clear,
+                                contentDescription = "Clear image button",
+                                modifier = Modifier
+                                    .size(48.dp),
+                                tint = Color.Red
+                            )
+                        }
+                    }
+
                 }
+
             }
 
             CustomActionButton(

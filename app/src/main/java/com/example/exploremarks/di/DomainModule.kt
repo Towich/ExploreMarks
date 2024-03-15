@@ -6,6 +6,7 @@ import com.example.exploremarks.domain.ClearUserDataUseCase
 import com.example.exploremarks.domain.CreateMarkUseCase
 import com.example.exploremarks.domain.DeleteMarkUseCase
 import com.example.exploremarks.domain.DislikeMarkUseCase
+import com.example.exploremarks.domain.GetImageBitmapByUriUseCase
 import com.example.exploremarks.domain.GetMarksUseCase
 import com.example.exploremarks.domain.GetUserDataUseCase
 import com.example.exploremarks.domain.LikeMarkUseCase
@@ -57,6 +58,11 @@ object DomainModule {
     @Singleton
     fun provideDeleteMarkUseCase(repository: MainRepository): DeleteMarkUseCase {
         return DeleteMarkUseCase(repository)
+    }
+    @Provides
+    @Singleton
+    fun provideGetImageBitmapByUriUseCase(repository: MainRepository): GetImageBitmapByUriUseCase {
+        return GetImageBitmapByUriUseCase(repository)
     }
 
 

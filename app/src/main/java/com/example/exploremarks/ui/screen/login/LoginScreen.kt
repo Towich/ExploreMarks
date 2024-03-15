@@ -31,8 +31,8 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.example.exploremarks.R
-import com.example.exploremarks.data.SessionMode
-import com.example.exploremarks.data.model.CacheSession
+import com.example.exploremarks.data.model.SessionMode
+import com.example.exploremarks.data.source.CacheSession
 import com.example.exploremarks.navigation.Screen
 import com.example.exploremarks.ui.screen.components.CustomActionButton
 import com.example.exploremarks.ui.screen.components.CustomClickableText

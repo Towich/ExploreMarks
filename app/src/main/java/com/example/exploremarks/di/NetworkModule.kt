@@ -1,7 +1,6 @@
 package com.example.exploremarks.di
 
 import android.util.Log
-import com.example.exploremarks.data.model.CacheSession
 import com.example.exploremarks.network.ApiService
 import com.example.exploremarks.network.ApiServiceImpl
 import dagger.Module

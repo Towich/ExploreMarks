@@ -1,7 +1,7 @@
-package com.example.exploremarks.data.model
+package com.example.exploremarks.data.source
 
-import android.util.Log
-import com.example.exploremarks.data.SessionMode
+import com.example.exploremarks.data.model.SessionMode
+import com.example.exploremarks.data.model.UserData
 import java.util.UUID
 
 class CacheSession(

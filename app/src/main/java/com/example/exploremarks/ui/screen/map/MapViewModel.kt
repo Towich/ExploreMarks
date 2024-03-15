@@ -1,5 +1,7 @@
 package com.example.exploremarks.ui.screen.map
 
+import android.net.Uri
+import androidx.compose.ui.graphics.ImageBitmap
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.exploremarks.data.model.MarkUIModel
@@ -7,6 +9,7 @@ import com.example.exploremarks.data.model.UserData
 import com.example.exploremarks.domain.CreateMarkUseCase
 import com.example.exploremarks.domain.DeleteMarkUseCase
 import com.example.exploremarks.domain.DislikeMarkUseCase
+import com.example.exploremarks.domain.GetImageBitmapByUriUseCase
 import com.example.exploremarks.domain.GetMarksUseCase
 import com.example.exploremarks.domain.GetUserDataUseCase
 import com.example.exploremarks.domain.LikeMarkUseCase
@@ -25,7 +28,8 @@ class MapViewModel @Inject constructor(
     private val likeMark: LikeMarkUseCase,
     private val dislikeMark: DislikeMarkUseCase,
     private val createMark: CreateMarkUseCase,
-    private val deleteMark: DeleteMarkUseCase
+    private val deleteMark: DeleteMarkUseCase,
+    private val getImageBitmapByUri: GetImageBitmapByUriUseCase
 ) : ViewModel() {
 
     private val _screenUiState = MutableStateFlow<MapScreenUiState>(MapScreenUiState.Initial)
@@ -127,11 +131,11 @@ class MapViewModel @Inject constructor(
         }
     }
 
-    fun performCreateMark(newMarkUIModel: MarkUIModel){
+    fun performCreateMark(newMarkUIModel: MarkUIModel, imageMark: ImageBitmap?){
         viewModelScope.launch {
             _newMarkUiState.value = MarkUiState.Loading
 
-            when (val result = createMark(newMark = newMarkUIModel)) {
+            when (val result = createMark(newMark = newMarkUIModel, imageMark = imageMark)) {
                 is ApiResult.Success -> {
                     _listOfMarks.value?.add(result.data)
                     _newMarkUiState.value = MarkUiState.Success(result.data)
@@ -185,5 +189,9 @@ class MapViewModel @Inject constructor(
 
     fun changeDeleteMarkUIState(newState: MarkUiState){
         _deleteMarkUiState.value = newState
+    }
+
+    fun performGetImageBitmapByUri(uri: Uri): ImageBitmap {
+        return getImageBitmapByUri(uri)
     }
 }

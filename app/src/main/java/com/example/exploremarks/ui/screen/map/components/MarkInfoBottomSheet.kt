@@ -33,7 +33,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.exploremarks.R
-import com.example.exploremarks.data.SessionMode
+import com.example.exploremarks.data.model.SessionMode
 import com.example.exploremarks.data.model.MarkUIModel
 import com.example.exploremarks.ui.screen.map.MarkUiState
 import java.util.UUID
