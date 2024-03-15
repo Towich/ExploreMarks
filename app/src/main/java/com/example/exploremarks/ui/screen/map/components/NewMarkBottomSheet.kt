@@ -1,13 +1,11 @@
 package com.example.exploremarks.ui.screen.map.components
 
 import android.net.Uri
-import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -22,7 +20,6 @@ import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -43,8 +40,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.exploremarks.data.model.SessionMode
 import com.example.exploremarks.data.model.MarkUIModel
+import com.example.exploremarks.data.util.format
 import com.example.exploremarks.ui.screen.components.CustomActionButton
 import com.example.exploremarks.ui.screen.components.CustomCommonTextField
 import com.yandex.mapkit.geometry.Point
@@ -52,7 +49,7 @@ import java.util.UUID
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun NewMarkButtonSheet(
+fun NewMarkBottomSheet(
     sheetState: SheetState,
     chosenImageBitmap: ImageBitmap?,
     geoPoint: Point,
@@ -108,7 +105,7 @@ fun NewMarkButtonSheet(
                         fontSize = 20.sp
                     )
                     Text(
-                        text = geoPoint.latitude.toString(),
+                        text = geoPoint.latitude.format(6),
                         color = MaterialTheme.colorScheme.primary,
                         fontWeight = FontWeight.Bold,
                         fontSize = 16.sp
@@ -128,7 +125,7 @@ fun NewMarkButtonSheet(
                         fontSize = 20.sp
                     )
                     Text(
-                        text = geoPoint.longitude.toString(),
+                        text = geoPoint.longitude.format(6),
                         color = MaterialTheme.colorScheme.primary,
                         fontWeight = FontWeight.Bold,
                         fontSize = 16.sp

@@ -19,22 +19,18 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ImageBitmap
-import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
-import androidx.core.graphics.drawable.toDrawable
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.exploremarks.R
-import com.example.exploremarks.data.model.SessionMode
 import com.example.exploremarks.data.model.MarkUIModel
-import com.example.exploremarks.data.util.Converter
-import com.example.exploremarks.ui.screen.map.components.MarkInfoButtonSheet
-import com.example.exploremarks.ui.screen.map.components.NewMarkButtonSheet
+import com.example.exploremarks.data.model.SessionMode
+import com.example.exploremarks.ui.screen.map.components.MarkInfoBottomSheet
+import com.example.exploremarks.ui.screen.map.components.NewMarkBottomSheet
 import com.yandex.mapkit.Animation
 import com.yandex.mapkit.geometry.Point
 import com.yandex.mapkit.map.CameraPosition
@@ -67,7 +63,7 @@ fun MapScreen(
     var isMarksInitialized by remember { mutableStateOf(false) }
 
     var mapViewCollection by remember { mutableStateOf<MapObjectCollection?>(null) }
-    var listOfPlacemarks = remember { mutableListOf<PlacemarkMapObject>() }
+    val listOfPlacemarks = remember { mutableListOf<PlacemarkMapObject>() }
     val listOfMarksTapListeners = remember { mutableListOf<MapObjectTapListener>() }
 
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
@@ -93,7 +89,7 @@ fun MapScreen(
         else -> {}
     }
 
-    when (deleteMarkUiState){
+    when (deleteMarkUiState) {
         is MarkUiState.Success<*> -> {
             indexToRemove = (deleteMarkUiState as MarkUiState.Success<*>).data as Int
             mapViewCollection?.remove(listOfPlacemarks[indexToRemove!!])
@@ -103,11 +99,9 @@ fun MapScreen(
             showMarkInfoBottomSheet = false
             viewModel.changeDeleteMarkUIState(MarkUiState.Initial)
         }
+
         else -> {}
     }
-
-//    val snackbarHostState = remember { SnackbarHostState() }
-    val scope = rememberCoroutineScope()
 
     val inputListener by remember {
         mutableStateOf(object : InputListener {
@@ -198,14 +192,14 @@ fun MapScreen(
                     isMarksInitialized = true
                 }
                 if (newMark != null) {
-                    val _newMark = newMark!!
+                    val newMarkLocal = newMark!!
                     newMark = null
                     val listener = MapObjectTapListener { _, _ ->
                         mapView.mapWindow.map.move(
                             CameraPosition(
                                 Point(
-                                    _newMark.latitude - 0.0085f,
-                                    _newMark.longitude
+                                    newMarkLocal.latitude - 0.0085f,
+                                    newMarkLocal.longitude
                                 ),
                                 15f,
                                 0f,
@@ -213,7 +207,7 @@ fun MapScreen(
                             ),
                             Animation(Animation.Type.SMOOTH, 1f)
                         ) {}
-                        chosenMark = _newMark
+                        chosenMark = newMarkLocal
                         showMarkInfoBottomSheet = true
                         true
                     }
@@ -243,7 +237,7 @@ fun MapScreen(
         )
 
         if (showMarkInfoBottomSheet) {
-            MarkInfoButtonSheet(
+            MarkInfoBottomSheet(
                 sheetState = sheetState,
                 markUiState = markUiState,
                 mark = chosenMark!!,
@@ -266,21 +260,23 @@ fun MapScreen(
         }
 
         if (showNewMarkBottomSheet) {
-            NewMarkButtonSheet(
+            NewMarkBottomSheet(
                 sheetState = sheetState,
                 chosenImageBitmap = chosenImageBitmap,
                 geoPoint = chosenPointNewMark,
                 onCreateMark = { markUiModel ->
                     newGeoMark?.let { it1 -> mapViewCollection?.remove(it1) }
 
-                    viewModel.performCreateMark(newMarkUIModel = markUiModel, imageMark = chosenImageBitmap)
+                    viewModel.performCreateMark(
+                        newMarkUIModel = markUiModel,
+                        imageMark = chosenImageBitmap
+                    )
                 },
                 onImageChosen = { uri: Uri? ->
-                    if(uri != null){
+                    if (uri != null) {
                         chosenImageBitmap = viewModel.performGetImageBitmapByUri(uri = uri)
                         chosenImageBitmap
-                    }
-                    else{
+                    } else {
                         null
                     }
                 },

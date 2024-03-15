@@ -1,7 +1,7 @@
 package com.example.exploremarks.ui.screen.map.components
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -32,15 +32,18 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil.compose.SubcomposeAsyncImage
 import com.example.exploremarks.R
-import com.example.exploremarks.data.model.SessionMode
 import com.example.exploremarks.data.model.MarkUIModel
+import com.example.exploremarks.data.model.SessionMode
+import com.example.exploremarks.data.util.format
+import com.example.exploremarks.network.ApiRoutes
 import com.example.exploremarks.ui.screen.map.MarkUiState
 import java.util.UUID
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
-fun MarkInfoButtonSheet(
+fun MarkInfoBottomSheet(
     sheetState: SheetState,
     markUiState: MarkUiState,
     mark: MarkUIModel,
@@ -61,14 +64,50 @@ fun MarkInfoButtonSheet(
     ) {
         // Sheet content
 
-        Image(
-            painter = painterResource(id = R.drawable.zaradye),
-            contentDescription = null,
+        Box(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(300.dp),
-            contentScale = ContentScale.FillWidth
-        )
+            contentAlignment = Alignment.Center
+        ) {
+            SubcomposeAsyncImage(
+                model = if(mark.image != null) ApiRoutes.BASE_URL + mark.image else null,
+                contentDescription = "Image of mark",
+                modifier = Modifier,
+                contentScale = ContentScale.FillHeight,
+                loading = {
+                    CircularProgressIndicator(
+                        strokeWidth = 10.dp,
+                        modifier = Modifier
+                            .size(150.dp),
+                    )
+                },
+                error = {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(300.dp)
+                            .border(width = 1.dp, color = MaterialTheme.colorScheme.primary),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = "No photo!",
+                            textAlign = TextAlign.Center
+                        )
+                    }
+                }
+            )
+        }
+
+
+//        Image(
+//            painter = painterResource(id = R.drawable.zaradye),
+//            contentDescription = null,
+//            modifier = Modifier
+//                .fillMaxWidth()
+//                .height(300.dp),
+//            contentScale = ContentScale.FillWidth
+//        )
 
         Row(
             modifier = Modifier
@@ -87,7 +126,7 @@ fun MarkInfoButtonSheet(
                     fontSize = 20.sp,
                 )
                 Text(
-                    text = "${mark.latitude}",
+                    text = mark.latitude.format(6),
                     color = MaterialTheme.colorScheme.primary,
                     fontWeight = FontWeight.Bold,
 
@@ -104,7 +143,7 @@ fun MarkInfoButtonSheet(
                     fontSize = 20.sp,
                 )
                 Text(
-                    text = "${mark.longitude}",
+                    text = mark.longitude.format(6),
                     color = MaterialTheme.colorScheme.primary,
                     fontWeight = FontWeight.Bold
                 )
@@ -223,7 +262,7 @@ fun MarkInfoButtonSheet(
                         .clip(CircleShape)
                         .background(color = MaterialTheme.colorScheme.primary)
                         .clickable {
-                            if(sessionMode == SessionMode.AUTHORIZED) {
+                            if (sessionMode == SessionMode.AUTHORIZED) {
                                 if (!mark.isLiked) {
                                     onLikeMark(mark.id)
                                 } else {
