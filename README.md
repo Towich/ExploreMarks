@@ -31,7 +31,7 @@
 * Language: Kotlin
 * UI: Jetpack Compose
 * Map: Yandex.Map (lite)
-* Architecture: MVVM + Use Cases
+* Architecture: MVVM + Use Cases (обеспечивает возможность легко переиспользовать бизнес-логику между разными экранами)
 * Async: Kotlin Coroutines
 * DI: Hilt
 * HTTP Client: KTor
